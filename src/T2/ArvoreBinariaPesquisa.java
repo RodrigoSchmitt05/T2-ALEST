@@ -40,5 +40,7 @@ public class ArvoreBinariaPesquisa {
         }
     }
 
-
+    public void inserir(int valor) {
+       adicionar(valor);
+    }
 }
