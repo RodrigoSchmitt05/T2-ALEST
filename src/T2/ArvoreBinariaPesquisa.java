@@ -1,5 +1,10 @@
 package T2;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class ArvoreBinariaPesquisa {
     private class Nodo {
         private int chave;
@@ -19,138 +24,159 @@ public class ArvoreBinariaPesquisa {
         tamanho = 0;
     }
 
-    public void adicionar(int chave) {
+    public void inserir(int chave) {
         Nodo n = new Nodo(chave);
-        if (raiz == null)
+        if (raiz == null) {
             raiz = n;
-        else {
-            adicionarRecursivo(n, raiz);
+        } else {
+            inserirRecursivo(n, raiz);
         }
         tamanho++;
     }
 
-    private void adicionarRecursivo(Nodo n, Nodo pai) {
-        if (n.chave <= pai.chave) {
+    private void inserirRecursivo(Nodo n, Nodo pai) {
+        if (n.chave < pai.chave) {
             if (pai.esquerda == null) {
                 pai.esquerda = n;
                 n.pai = pai;
             } else {
-                adicionarRecursivo(n, pai.esquerda);
+                inserirRecursivo(n, pai.esquerda);
             }
         } else {
             if (pai.direita == null) {
                 pai.direita = n;
                 n.pai = pai;
             } else {
-                adicionarRecursivo(n, pai.direita);
+                inserirRecursivo(n, pai.direita);
             }
         }
-    }
-
-    public boolean contem(int chave) {
-        Nodo n = obterNodoRecursivamente(chave, raiz);
-        return n != null;
-    }
-
-    private Nodo obterNodoRecursivamente(int chave, Nodo n) {
-        if (n == null) {
-            return null;
-        }
-        if (chave == n.chave) {
-            return n;
-        } else if (chave < n.chave) {
-            return obterNodoRecursivamente(chave, n.esquerda);
-        } else {
-            return obterNodoRecursivamente(chave, n.direita);
-        }
-    }
-
-    public String caminharPreOrdem() {
-        StringBuilder sb = new StringBuilder();
-        caminharPreOrdemRecursivo(raiz, sb);
-        return sb.toString();
-    }
-    private void caminharPreOrdemRecursivo(Nodo n, StringBuilder sb) {
-        if (n != null) {
-            sb.append(n.chave).append("");
-            caminharPreOrdemRecursivo(n.esquerda, sb);
-            caminharPreOrdemRecursivo(n.direita, sb);
-        }
-    }
-
-    public String caminharPosOrdem() {
-        StringBuilder sb = new StringBuilder();
-        caminharPreOrdemRecursivo(raiz, sb);
-        return sb.toString();
-    }
-    private void caminharPosOrdemRecursivo(Nodo n, StringBuilder sb) {
-        if (n != null) {
-            caminharPosOrdemRecursivo(n.esquerda, sb);
-            caminharPosOrdemRecursivo(n.direita, sb);
-            sb.append(n.chave).append("");
-        }
-    }
-
-    public String caminharCentral() {
-        StringBuilder sb = new StringBuilder();
-        caminharCentralRecursivo(raiz, sb);
-        return sb.toString();
-    }
-    public void caminharCentralRecursivo(Nodo n, StringBuilder sb) {
-        if (n != null) {
-            caminharCentralRecursivo(n.esquerda, sb);
-            sb.append(n.chave).append("");
-            caminharCentralRecursivo(n.direita, sb);
-        }
-    }
-
-    public int obterTamanho() {
-        return tamanho;
-    }
-
-    public String caminharLargura() {
-        if(raiz == null) return null;
-        String caminho = "";
-
-        Fila fila = new Fila();
-        Nodo n = raiz;
-        fila.enfileirar(n.chave);
-        while(!fila.estaVazia()) {
-            int e = fila.desenfileirar();
-            caminho = caminho + String.valueOf(e) + "";
-            n = obterNodoRecursivamente(e, raiz);
-            if(n.esquerda != null) fila.enfileirar(n.esquerda.chave);
-            if(n.esquerda != null) fila.enfileirar(n.direita.chave);
-        }
-        return caminho;
-    }
-
-    public int obterNivel(int chave) {
-        return obterNivelRecursivo(chave, raiz, 0);
-    }
-    private int obterNivelRecursivo(int chave, Nodo n, int nivel) {
-        if (n == null) return -1;
-        if (n.chave == chave) return nivel;
-        else if (chave < n.chave) return obterNivelRecursivo(chave, n.esquerda, nivel + 1);
-        else return obterNivelRecursivo(chave, n.direita, nivel + 1);
     }
     
-    public void imprimirArvore() {
-        imprimirArvoreRecursivo(raiz, 0);
-    }
-    private void imprimirArvoreRecursivo(Nodo n, int nivel) {
-        if (n != null) {
-            imprimirArvoreRecursivo(n.direita, nivel + 1);
-            for (int i = 0; i < nivel; i++) {
-                System.out.println("   ");
+    public Map<String, Object> pesquisar(int chave) {
+        Map<String, Object> resultado = new HashMap<>();
+        List<Integer> caminho = new ArrayList<>();
+        Nodo atual = raiz;
+        boolean encontrado = false;
+
+        while (atual != null) {
+            caminho.add(atual.chave);
+            if (chave == atual.chave) {
+                encontrado = true;
+                break;
+            } else if (chave < atual.chave) {
+                atual = atual.esquerda;
+            } else {
+                atual = atual.direita;
             }
-            System.out.println(n.chave);
-            imprimirArvoreRecursivo(n.esquerda, nivel + 1);
+        }
+
+        resultado.put("caminho", caminho);
+        resultado.put("encontrado", encontrado);
+        return resultado;
+    }
+
+    public List<Integer> caminharPreOrdem() {
+        List<Integer> lista = new ArrayList<>();
+        caminharPreOrdemRecursivo(raiz, lista);
+        return lista;
+    }
+
+    private void caminharPreOrdemRecursivo(Nodo n, List<Integer> lista) {
+        if (n != null) {
+            lista.add(n.chave);
+            caminharPreOrdemRecursivo(n.esquerda, lista);
+            caminharPreOrdemRecursivo(n.direita, lista);
         }
     }
 
-    public void inserir(int valor) {
-        adicionar(valor);
+    public List<Integer> caminharPosOrdem() {
+        List<Integer> lista = new ArrayList<>();
+        caminharPosOrdemRecursivo(raiz, lista);
+        return lista;
     }
 
+    private void caminharPosOrdemRecursivo(Nodo n, List<Integer> lista) {
+        if (n != null) {
+            caminharPosOrdemRecursivo(n.esquerda, lista);
+            caminharPosOrdemRecursivo(n.direita, lista);
+            lista.add(n.chave);
+        }
+    }
+
+    public List<Integer> caminharCentral() {
+        List<Integer> lista = new ArrayList<>();
+        caminharCentralRecursivo(raiz, lista);
+        return lista;
+    }
+
+    private void caminharCentralRecursivo(Nodo n, List<Integer> lista) {
+        if (n != null) {
+            caminharCentralRecursivo(n.esquerda, lista);
+            lista.add(n.chave);
+            caminharCentralRecursivo(n.direita, lista);
+        }
+    }
+    
+    public List<Integer> caminharLargura() {
+        List<Integer> resultado = new ArrayList<>();
+        if (raiz == null) {
+            return resultado;
+        }
+
+        Fila fila = new Fila();
+        fila.enfileirar(raiz);
+
+        while (!fila.estaVazia()) {
+            Nodo n = fila.desenfileirar();
+            if (n != null) {
+                resultado.add(n.chave);
+                if (n.esquerda != null) {
+                    fila.enfileirar(n.esquerda);
+                }
+                if (n.direita != null) {
+                    fila.enfileirar(n.direita);
+                }
+            }
+        }
+        return resultado;
+    }
+
+    private class Fila {
+        private class NodoFila {
+            private Nodo arvoreNodo;
+            private NodoFila proximo;
+
+            NodoFila(Nodo arvoreNodo) {
+                this.arvoreNodo = arvoreNodo;
+            }
+        }
+
+        private NodoFila inicio;
+        private NodoFila fim;
+
+        public void enfileirar(Nodo arvoreNodo) {
+            NodoFila novo = new NodoFila(arvoreNodo);
+            if (fim != null) {
+                fim.proximo = novo;
+            }
+            fim = novo;
+            if (inicio == null) {
+                inicio = fim;
+            }
+        }
+
+        public Nodo desenfileirar() {
+            if (inicio == null) return null;
+            Nodo arvoreNodo = inicio.arvoreNodo;
+            inicio = inicio.proximo;
+            if (inicio == null) {
+                fim = null;
+            }
+            return arvoreNodo;
+        }
+
+        public boolean estaVazia() {
+            return inicio == null;
+        }
+    }
 }
